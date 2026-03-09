@@ -22,17 +22,18 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-
 	// connect MongoDB
 	config.ConnectDB()
 
-
 	// get users collection
 	userCollection := config.DB.Collection("users")
+	taskCollection := config.DB.Collection("tasks")
+
+
 
 	// pass collection to controller
+	controllers.SetTaskCollection(taskCollection)
 	controllers.SetUserCollection(userCollection)
-
 
 	router := gin.Default()
 
@@ -49,9 +50,9 @@ func main() {
 
 	routes.UserRoutes(router)
 
+	routes.TaskRoutes(router)
+
 	port := os.Getenv("PORT")
 
 	router.Run(":" + port)
 }
-
-

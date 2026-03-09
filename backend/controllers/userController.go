@@ -10,6 +10,8 @@ import (
 
 	//"backend/config"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,7 +20,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// create the user
+
+// create the users
 
 var userCollection *mongo.Collection
 
@@ -153,5 +156,51 @@ func LoginUser(c *gin.Context) { // Here c = request + response (req + res toget
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   tokenString,
+	})
+}
+
+
+
+
+
+
+//  user get their all tasks 
+
+func GetMyTasks(c *gin.Context) {
+
+	userID, exists := c.Get("userId")
+	if !exists {
+		c.JSON(401, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	objID, err := primitive.ObjectIDFromHex(userID.(string))
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	cursor, err := taskCollection.Find(ctx, bson.M{
+		"assignedTo": objID,
+	})
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Failed to fetch tasks"})
+		return
+	}
+
+	var tasks []models.Task
+
+	if err = cursor.All(ctx, &tasks); err != nil {
+		c.JSON(500, gin.H{"error": "Error decoding tasks"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"task_count": len(tasks),
+		"tasks": tasks,
 	})
 }

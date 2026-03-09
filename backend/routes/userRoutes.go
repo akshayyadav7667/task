@@ -1,8 +1,8 @@
 package routes
 
-
 import (
 	"backend/controllers"
+	"backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,5 +15,11 @@ func UserRoutes(router *gin.Engine) {
 
 	user.POST("/register", controllers.CreateUser)
 	user.POST("/login", controllers.LoginUser)
+
+	user.GET("/mytasks", middleware.UserAuthMiddleware() , controllers.GetMyTasks)
+
+	
+
+		// task.GET("/user/:id/tasks",controllers.GetUserTasks)
 
 }
