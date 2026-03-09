@@ -15,6 +15,8 @@ func TaskRoutes(router *gin.Engine) {
 
 	task.GET("/getAllTask", controllers.GetAllTasks)
 
+	//task.PATCH("/complete/:taskId", controllers.CompleteTask)
+
 	// task.GET("/user/:id/tasks",controllers.GetUserTasks)
 
 

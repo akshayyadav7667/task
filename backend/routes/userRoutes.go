@@ -18,6 +18,10 @@ func UserRoutes(router *gin.Engine) {
 
 	user.GET("/mytasks", middleware.UserAuthMiddleware() , controllers.GetMyTasks)
 
+
+	user.PATCH("/:taskId",middleware.UserAuthMiddleware(), controllers.CompleteTask)
+
+
 	
 
 		// task.GET("/user/:id/tasks",controllers.GetUserTasks)

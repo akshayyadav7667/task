@@ -204,3 +204,58 @@ func GetMyTasks(c *gin.Context) {
 		"tasks": tasks,
 	})
 }
+
+
+
+
+
+
+
+// update the task when it will completed by user
+
+func CompleteTask(c *gin.Context) {
+
+	taskId := c.Param("taskId")
+
+	objId, err := primitive.ObjectIDFromHex(taskId)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid task id",
+		})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	update := bson.M{
+		"$set": bson.M{
+			"status": "success",
+		},
+	}
+
+	result, err := taskCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": objId},
+		update,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Task update failed",
+		})
+		return
+	}
+
+	if result.MatchedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Task not found",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Task completed successfully",
+	})
+}
